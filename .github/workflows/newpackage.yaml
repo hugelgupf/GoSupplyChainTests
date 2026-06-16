@@ -1,0 +1,45 @@
+name: Create a new package and release it
+
+on:
+  workflow_dispatch: 
+  schedule:
+    - cron: '0 0 * * *' 
+
+permissions:
+  contents: write
+
+jobs:
+  write-and-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure github actions bot
+        run: |
+          # Configure Git to identify as the official GitHub Actions bot
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate Monotonic Version Package
+        id: create_tag
+        run: |
+          DATE_PART=$(date +'%Y%m%d')
+          PKG_NAME="day_${DATE_PART}"
+          DIR="newpackage_demo"
+
+          echo "Generated package name: $PKG_NAME"
+
+          mkdir -p ${DIR}/${PKG_NAME}
+          cd ${DIR}/${PKG_NAME}
+          go mod init github.com/hugelgupf/GoSupplyChainTests/${DIR}
+
+          echo "package ${PKG_NAME}" >> pkg.go
+          go build
+
+          git add .
+          git commit -m "Create package ${DIR}/${PKG_NAME}"
+          git push
+          git tag -a "${DIR}/${PKG_NAME}/v1.0.0" -m "Create package ${DIR}/${PKG_NAME}/v1.0.0"
+          git push origin "${DIR}/${PKG_NAME}/v1.0.0"
