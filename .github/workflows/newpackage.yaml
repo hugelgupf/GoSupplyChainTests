@@ -33,7 +33,7 @@ jobs:
 
           mkdir -p ${DIR}/${PKG_NAME}
           cd ${DIR}/${PKG_NAME}
-          go mod init github.com/hugelgupf/GoSupplyChainTests/${DIR}
+          go mod init github.com/hugelgupf/GoSupplyChainTests/${DIR}/${PKG_NAME}
 
           echo "package ${PKG_NAME}" >> pkg.go
           go build
