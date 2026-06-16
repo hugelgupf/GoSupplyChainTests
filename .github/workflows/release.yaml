@@ -25,8 +25,14 @@ jobs:
       - name: Generate Monotonic Version Tag
         id: create_tag
         run: |
-          # Format: always increasing numerically: v1.YYYYMMDD.HHMMSS (e.g., v1.20260615.000000)
-          TAG_NAME="nightlyrelease/v1.$(date +'%Y%m%d.%H%M%S')"
+          # Format: always increasing numerically: v1.YYYYMMDD.SECONDS_SINCE_MIDNIGHT
+          DATE_PART=$(date +'%Y%m%d')
+          
+          # Get seconds since midnight. 
+          # Semver requires no leading 0s, which HHMMSS would have.
+          SECONDS_PART=$(( $(date +%-H) * 3600 + $(date +%-M) * 60 + $(date +%-S) ))
+          
+          TAG_NAME="nightlyrelease/v1.${DATE_PART}.${SECONDS_PART}"
           echo "Generated Tag: $TAG_NAME"
           
           git tag -a "$TAG_NAME" -m "Daily automated release $TAG_NAME"
