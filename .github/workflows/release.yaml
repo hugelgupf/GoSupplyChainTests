@@ -1,0 +1,34 @@
+name: Automated Git Release
+
+on:
+  workflow_dispatch: # Allows you to run this workflow manually from the Actions tab
+  schedule:
+    - cron: '0 0 * * *' # Optional: Runs automatically every day at midnight
+
+permissions:
+  contents: write # Crucial: Explicitly grants write access to the repository
+
+jobs:
+  write-and-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure github actions bot
+        run: |
+          # Configure Git to identify as the official GitHub Actions bot
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate Monotonic Version Tag
+        id: create_tag
+        run: |
+          # Format: always increasing numerically: v1.YYYYMMDD.HHMMSS (e.g., v1.20260615.000000)
+          TAG_NAME="nightlyrelease/v1.$(date +'%Y%m%d.%H%M%S')"
+          echo "Generated Tag: $TAG_NAME"
+          
+          git tag -a "$TAG_NAME" -m "Daily automated release $TAG_NAME"
+          git push origin "$TAG_NAME"
+          
